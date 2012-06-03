@@ -69,6 +69,8 @@ void Chat::quit()
 
     QNetworkReply *reply = net->post(request, "logout=true");
     connect(reply, SIGNAL(finished()), reply, SLOT(deleteLater()));
+
+    readTimer->stop();
 }
 
 /** The chat is connected to the server if the read timer is active. */
