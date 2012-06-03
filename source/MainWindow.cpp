@@ -53,6 +53,8 @@ void MainWindow::disconnectConnect()
         botanna->getChat()->quit();
     } else {
         // connect
+        botanna->deleteLater();
+        botanna = new Botanna(this);
     }
 }
 
