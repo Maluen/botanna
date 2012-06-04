@@ -17,7 +17,10 @@ public:
     Botanna(QObject *parent = 0);
     ~Botanna();
     Memory *getMemory();
+    QString getName();
+    QString getChatLocation();
     Chat *getChat();
+    void connectToChat();
 private:
     void gdfExecuteCommand(const QString &command, const QStringList &parameters, const QString &userName);
     void gdfHelp(const QString &command);
@@ -40,7 +43,8 @@ private slots:
 
 private:
     Memory *memory;
-    QString nick;
+    QString name;
+    QString chatLocation;
     Chat *chat;
     bool gdfStarted;
     QList<QString> gdfUsers; // the usernames

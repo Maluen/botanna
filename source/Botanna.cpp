@@ -10,9 +10,20 @@
 
 Botanna::Botanna(QObject *parent) : QObject(parent)
 {
+    // Fetch stuff from memory
     memory = new Memory(this);
-    nick = memory->name();
+    name = memory->name();
+    if (name.isEmpty()) {
+        // stop
+        // TODO
+    }
+    if (chatLocation.isEmpty()) {
+        // stop
+        // TODO
+    }
+    chatLocation = memory->chatLocation();
 
+    // setup the chat client
     chat = new Chat(this);
     connect(chat, SIGNAL(newPublicMessage(QString&,QString)), this, SLOT(processPublicMessage(QString&,QString)));
     connect(chat, SIGNAL(userChangeNick(QString,QString)), this, SLOT(updateGDFUser(QString,QString)));
@@ -20,10 +31,11 @@ Botanna::Botanna(QObject *parent) : QObject(parent)
     connect(chat, SIGNAL(userKicked(QString)), this, SLOT(gdfUserLeave(QString)));
     connect(chat, SIGNAL(userLeaveChannel(QString)), this, SLOT(gdfUserLeave(QString)));
 
+    // Here we go, Anna puts his hands on the computer
+    connectToChat();
+
     gdfStarted = false;
     currentGdfUser = 0;
-
-    chat->connectToServer("http://www.sognilucidi.it/forum/chat/", nick, "");
 }
 
 Botanna::~Botanna()
@@ -36,9 +48,26 @@ Memory *Botanna::getMemory()
     return memory;
 }
 
+QString Botanna::getName()
+{
+    return name;
+}
+
+QString Botanna::getChatLocation()
+{
+    return chatLocation;
+}
+
 Chat *Botanna::getChat()
 {
     return chat;
+}
+
+void Botanna::connectToChat()
+{
+    if (chat != NULL && !chatLocation.isEmpty() && !name.isEmpty()) {
+        chat->connectToServer(chatLocation, name, "");
+    }
 }
 
 void Botanna::joinPublic(bool connected)
@@ -52,7 +81,7 @@ void Botanna::joinPublic(bool connected)
 
 void Botanna::processPublicMessage(QString &message, const QString &userName)
 {
-    if (userName == nick) {
+    if (userName == name) {
         // skip my messages
         return;
     }

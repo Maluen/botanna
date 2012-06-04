@@ -17,6 +17,7 @@ class Memory : QObject
 public:
     Memory(QObject *parent=0);
     QString name();
+    QString chatLocation();
     QString alias(const QString &text);
 
 private:

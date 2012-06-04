@@ -51,10 +51,11 @@ void MainWindow::disconnectConnect()
     if (botanna->getChat()->isConnected()) {
         // disconnect
         botanna->getChat()->quit();
+        disconnectConnectButton->setText(tr("Connetti"));
     } else {
         // connect
-        botanna->deleteLater();
-        botanna = new Botanna(this);
+        botanna->connectToChat();
+        disconnectConnectButton->setText(tr("Disconnetti"));
     }
 }
 

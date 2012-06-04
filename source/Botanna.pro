@@ -10,7 +10,7 @@ TARGET = Botanna
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
+SOURCES += main.cpp \
         MainWindow.cpp \
     Botanna.cpp \
     Chat.cpp \

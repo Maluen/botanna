@@ -27,10 +27,19 @@ Memory::Memory(QObject *parent) : QObject(parent)
     }
 }
 
-/** @return my name. */
+/** @return my name or an empty string if there isn't one. */
 QString Memory::name()
 {
-    return memoryDocument->documentElement().firstChildElement("name").text();
+    QDomElement el = memoryDocument->documentElement().firstChildElement("name");
+    return el.isNull() ? "" : el.text();
+}
+
+/** @return the location of the chat where I like to talk.
+    @return an empty string if there is no location. */
+QString Memory::chatLocation()
+{
+    QDomElement el = memoryDocument->documentElement().firstChildElement("chatLocation");
+    return el.isNull() ? "" : el.text();
 }
 
 /** @return the alias that match with the specified text, empty if doesn't exist. */
