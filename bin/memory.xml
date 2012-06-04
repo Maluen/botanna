@@ -1,6 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <memory>
     <!-- The bot name -->
     <name>Sbottonata</name>
+    <!-- The chat location -->
+    <chatLocation>http://www.sognilucidi.it/forum/chat/</chatLocation>
     <!-- GDF -->
     <alias>
         <pattern>%botname% .*(avvia) .+gdf.*</pattern>

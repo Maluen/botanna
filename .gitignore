@@ -1,1 +1,9 @@
+# Temp files
+*~
+.directory
+.DS_Store
 
+# Others
+bin/Botanna
+Botanna-build-desktop/*
+source/*.pro
