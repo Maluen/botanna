@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <memory>
     <!-- The bot name -->
-    <name>Sbottonata</name>
-    <!-- The chat location -->
-    <chatLocation>http://www.sognilucidi.it/forum/chat/</chatLocation>
+    <name>sPutanna</name>
+    <!-- The chat -->
+    <chat>
+        <location>http://www.sognilucidi.it/forum/chat/</location>
+        <username>username</username>
+        <password>password</password>
+    </chat>
+    <forum>
+        <loginUrl><![CDATA[http://www.sognilucidi.it/forum/ucp.php?mode=login]]></loginUrl>
+    </forum>
     <!-- GDF -->
     <alias>
         <pattern>%botname% .*(avvia) .+gdf.*</pattern>

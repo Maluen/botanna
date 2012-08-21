@@ -5,7 +5,7 @@
 #include <QDomElement>
 #include <QStringList>
 
-class Chat;
+class AJAXChat;
 class QTimer;
 class Memory;
 
@@ -19,7 +19,9 @@ public:
     Memory *getMemory();
     QString getName();
     QString getChatLocation();
-    Chat *getChat();
+    QString getChatUsername();
+    QString getChatPassword();
+    AJAXChat *getChat();
     void connectToChat();
 private:
     void gdfExecuteCommand(const QString &command, const QStringList &parameters, const QString &userName);
@@ -45,7 +47,12 @@ private:
     Memory *memory;
     QString name;
     QString chatLocation;
-    Chat *chat;
+    QString chatUsername;
+    QString chatPassword;
+    QString forumLoginUrl;
+    QString forumUsername;
+    QString forumPassword;
+    AJAXChat *chat;
     bool gdfStarted;
     QList<QString> gdfUsers; // the usernames
     int currentGdfUser;

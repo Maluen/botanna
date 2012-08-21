@@ -1,11 +1,9 @@
-#ifndef CHAT_H
-#define CHAT_H
+#ifndef AJAXCHAT_H
+#define AJAXCHAT_H
 
 /**
-  \class Chats
-  \brief An abstract class for a Chat client.
-
-  Subclass it to define a class for a specific protocol (irc, msn, ajax, etc)
+  \class AJAXChat
+  \brief AJAX Chat client.
 */
 
 #include <QObject>
@@ -18,19 +16,21 @@
 class QNetworkAccessManager;
 class QTimer;
 
-class Chat : public QObject
+class AJAXChat : public QObject
 {
     Q_OBJECT
 
 public:
-    Chat(QObject *parent=0);
-    void connectToServer(const QString &server, const QString &userName, const QString &password, const QString &channel=tr("Pubblico"));
+    AJAXChat(QObject *parent=0);
+    void connectToServer(const QString &server, const QString &userName, const QString &password,
+                         const QString &channel=tr("Pubblico"), const QString &forumLoginUrl="");
     void quit();
     bool isConnected();
     void join(const QString &roomName);
     void leave(const QString &roomName);
     void write(const QString &msg, const QString &roomName="");
     int maxWriteLength();
+    void changeNick(const QString &newNick);
     QDomElement getUser(const int &userID);
     QDomElement getUser(const QString &userName);
     void emitChatData(const QDomElement &message);
@@ -61,4 +61,4 @@ private:
     QHash<int, QDomElement> users;
 };
 
-#endif // CHAT_H
+#endif // AJAXCHAT_H

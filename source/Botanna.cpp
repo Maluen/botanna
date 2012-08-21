@@ -1,6 +1,6 @@
 #include "Botanna.h"
 #include "Memory.h"
-#include "Chat.h"
+#include "AJAXChat.h"
 #include <QList>
 #include <QString>
 #include <QRegExp>
@@ -17,14 +17,28 @@ Botanna::Botanna(QObject *parent) : QObject(parent)
         // stop
         // TODO
     }
+    chatLocation = memory->chatLocation();
     if (chatLocation.isEmpty()) {
         // stop
         // TODO
     }
-    chatLocation = memory->chatLocation();
+    chatUsername = memory->chatUsername();
+    if (chatUsername.isEmpty()) {
+        // stop
+        // TODO
+    }
+    chatPassword = memory->chatPassword();
+    if (chatPassword.isEmpty()) {
+        // stop
+        // TODO
+    }
+    forumLoginUrl = memory->forumLoginUrl();
+    if (forumLoginUrl.isEmpty()) {
+        // nothing to do, can be empty
+    }
 
     // setup the chat client
-    chat = new Chat(this);
+    chat = new AJAXChat(this);
     connect(chat, SIGNAL(newPublicMessage(QString&,QString)), this, SLOT(processPublicMessage(QString&,QString)));
     connect(chat, SIGNAL(userChangeNick(QString,QString)), this, SLOT(updateGDFUser(QString,QString)));
     connect(chat, SIGNAL(userLoggedOut(QString)), this, SLOT(gdfUserLeave(QString)));
@@ -58,15 +72,26 @@ QString Botanna::getChatLocation()
     return chatLocation;
 }
 
-Chat *Botanna::getChat()
+QString Botanna::getChatUsername()
+{
+    return chatUsername;
+}
+
+QString Botanna::getChatPassword()
+{
+    return chatPassword;
+}
+
+AJAXChat *Botanna::getChat()
 {
     return chat;
 }
 
 void Botanna::connectToChat()
 {
-    if (chat != NULL && !chatLocation.isEmpty() && !name.isEmpty()) {
-        chat->connectToServer(chatLocation, name, "");
+    if (chat != NULL && !chatLocation.isEmpty() && !chatUsername.isEmpty()) {
+        // password can be empty
+        chat->connectToServer(chatLocation, chatUsername, chatPassword, tr("Pubblico"), forumLoginUrl);
     }
 }
 

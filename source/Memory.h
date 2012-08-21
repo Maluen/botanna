@@ -18,6 +18,14 @@ public:
     Memory(QObject *parent=0);
     QString name();
     QString chatLocation();
+    QString chatUsername();
+    QString chatPassword();
+    QString chatInfo(const QString &infoType);
+    QString forumLoginUrl();
+    QString forumUsername();
+    QString forumPassword();
+    QString forumInfo(const QString &infoType);
+    QString info(const QString &infoCategory, const QString &infoType);
     QString alias(const QString &text);
 
 private:

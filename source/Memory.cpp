@@ -38,8 +38,79 @@ QString Memory::name()
     @return an empty string if there is no location. */
 QString Memory::chatLocation()
 {
-    QDomElement el = memoryDocument->documentElement().firstChildElement("chatLocation");
-    return el.isNull() ? "" : el.text();
+    return chatInfo("location");
+}
+
+/** @return the username of the account on the chat where I like to talk.
+    @return an empty string if there is no username. */
+QString Memory::chatUsername()
+{
+    return chatInfo("username");
+}
+
+/** @return the password of the account on the chat where I like to talk.
+    @return an empty string if there is no password. */
+QString Memory::chatPassword()
+{
+    return chatInfo("password");
+}
+
+/**
+  Handy function for getting a specific chat info, e.g. location, username, password, etc.
+  @param infoType the info to get
+  @return the info or NULL if it doesn't exist
+*/
+QString Memory::chatInfo(const QString &infoType)
+{
+    return info("chat", infoType);
+}
+
+/** @return the parametric url used to login in the forum.
+    Parameter syntax is %Parameter%, e.g. %Username%, %Password% **/
+QString Memory::forumLoginUrl()
+{
+    return forumInfo("loginUrl");
+}
+
+/** @return the username used in the forum **/
+QString Memory::forumUsername()
+{
+    return forumInfo("username");
+}
+
+/** @return the password used in the forum **/
+QString Memory::forumPassword()
+{
+    return forumInfo("password");
+}
+
+/**
+  Handy function for getting a specific forum info, e.g. loginUrl, username, password, etc.
+  @param infoType the info to get
+  @return the info or NULL if it doesn't exist
+*/
+QString Memory::forumInfo(const QString &infoType)
+{
+    return info("forum", infoType);
+}
+
+/**
+  Handy function for getting a specific info,
+  @param infoCategory the category of the info to get, e.g. chat, forum
+  @param infoType the info to get, e.g. username, password, etc.
+  @return the info or NULL if it doesn't exist
+*/
+QString Memory::info(const QString &infoCategory, const QString &infoType)
+{
+    QString info = "";
+
+    QDomElement el = memoryDocument->documentElement().firstChildElement(infoCategory);
+    if (!el.isNull()) {
+        el = el.firstChildElement(infoType);
+        info = el.text();
+    }
+
+    return info;
 }
 
 /** @return the alias that match with the specified text, empty if doesn't exist. */

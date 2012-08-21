@@ -1,4 +1,4 @@
-#include "Chat.h"
+#include "AJAXChat.h"
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QUrl>
@@ -10,7 +10,7 @@
 
 const int _readInterval = 1000;
 
-Chat::Chat(QObject *parent) : QObject(parent)
+AJAXChat::AJAXChat(QObject *parent) : QObject(parent)
 {
     net = new QNetworkAccessManager(this);
     _maxWriteLength = 1040;
@@ -21,7 +21,8 @@ Chat::Chat(QObject *parent) : QObject(parent)
     connect(readTimer, SIGNAL(timeout()), this, SLOT(read()));
 }
 
-void Chat::connectToServer(const QString &server, const QString &userName, const QString &password, const QString &channel)
+void AJAXChat::connectToServer(const QString &server, const QString &userName, const QString &password,
+                               const QString &channel, const QString &forumLoginUrl)
 {
     _server = server;
 
@@ -29,13 +30,17 @@ void Chat::connectToServer(const QString &server, const QString &userName, const
     QUrl params;
     params.addQueryItem("login", "login");
     params.addQueryItem("redirect", server);
-    params.addQueryItem("userName", userName);
+    params.addQueryItem("username", userName);
     params.addQueryItem("password", password);
     params.addQueryItem("channelName", channel);
     params.addQueryItem("lang", "en");
     params.addQueryItem("submit", "Login");
 
-    QUrl url(server);
+    // if the forum login url is set, then login to the forum and then go to the chat,
+    // otherwise, directly go to the chat
+    QString connectUrl = forumLoginUrl.isEmpty() ? server : forumLoginUrl;
+
+    QUrl url(connectUrl);
     QNetworkRequest request(url);
     // content type is needed or you will get runtime debug warnings. This kind of header is needed or
     // the chat will just asks the bot to logout
@@ -47,7 +52,7 @@ void Chat::connectToServer(const QString &server, const QString &userName, const
 }
 
 /** Starts to read on connected. */
-void Chat::connectFinished()
+void AJAXChat::connectFinished()
 {
     QNetworkReply *reply = static_cast<QNetworkReply *>(QObject::sender());
 
@@ -55,13 +60,13 @@ void Chat::connectFinished()
         emit connectFinished(true);
         readTimer->start();
     } else {
-        qDebug("Connect error: " + reply->errorString().toUtf8());
+        qDebug(QString("Connect error: " + reply->errorString()).toUtf8());
         emit connectFinished(false);
         readTimer->stop();
     }
 }
 
-void Chat::quit()
+void AJAXChat::quit()
 {
     QUrl url(_server);
     QNetworkRequest request(url);
@@ -74,24 +79,24 @@ void Chat::quit()
 }
 
 /** The chat is connected to the server if the read timer is active. */
-bool Chat::isConnected()
+bool AJAXChat::isConnected()
 {
     return readTimer->isActive();
 }
 
-void Chat::join(const QString &roomName)
+void AJAXChat::join(const QString &roomName)
 {
 
 }
 
-void Chat::read(const QString &roomName)
+void AJAXChat::read(const QString &roomName)
 {
     QNetworkReply *reply = net->get(QNetworkRequest(QUrl(_server + "?ajax=true")));
     connect(reply, SIGNAL(finished()), this, SLOT(readFinished()));
     connect(reply, SIGNAL(finished()), reply, SLOT(deleteLater()));
 }
 
-void Chat::readFinished()
+void AJAXChat::readFinished()
 {
     QNetworkReply *reply = static_cast<QNetworkReply *>(QObject::sender());
 
@@ -143,7 +148,7 @@ void Chat::readFinished()
     qDebug(QString("New lastMsgId: %1").arg(QString::number(lastMsgId)).toUtf8());
 }
 
-void Chat::write(const QString &msg, const QString &roomName)
+void AJAXChat::write(const QString &msg, const QString &roomName)
 {
     /*
     QString url = _server + "?ajax=true&text=" + QUrl::toPercentEncoding(msg);
@@ -157,17 +162,24 @@ void Chat::write(const QString &msg, const QString &roomName)
     connect(reply, SIGNAL(finished()), reply, SLOT(deleteLater()));
 }
 
-int Chat::maxWriteLength()
+int AJAXChat::maxWriteLength()
 {
     return _maxWriteLength;
 }
 
-QDomElement Chat::getUser(const int &userID)
+void AJAXChat::changeNick(const QString &newNick)
+{
+    if (!newNick.isEmpty()) {
+        write("/nick " + newNick);
+    }
+}
+
+QDomElement AJAXChat::getUser(const int &userID)
 {
     return users.value(userID);
 }
 
-QDomElement Chat::getUser(const QString &userName)
+QDomElement AJAXChat::getUser(const QString &userName)
 {
     QHash<int, QDomElement>::const_iterator i;
     for (i = users.constBegin(); i != users.constEnd(); i++) {
@@ -180,7 +192,7 @@ QDomElement Chat::getUser(const QString &userName)
 
 /** Get a message node element, extrapolate its type (public msg, private msg, channelEnter, etc.) and emit
     the specific signal */
-void Chat::emitChatData(const QDomElement &message)
+void AJAXChat::emitChatData(const QDomElement &message)
 {
     QString messageText = message.firstChildElement("text").text();
     // decode html entities from the message text and simplify it

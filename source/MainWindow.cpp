@@ -2,7 +2,7 @@
 #include "Botanna.h"
 #include <QtGui>
 #include "Memory.h"
-#include "Chat.h"
+#include "AJAXChat.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -10,10 +10,13 @@ MainWindow::MainWindow(QWidget *parent)
     botanna = new Botanna(this);
 
     nickLabel = new QLabel(tr("Nickname: "));
-    nickLineEdit = new QLineEdit(botanna->getMemory()->name());
+    nickLineEdit = new QLineEdit(botanna->getMemory()->chatUsername());
     changeNickButton = new QPushButton(tr("Cambia"));
+    connect(changeNickButton, SIGNAL(clicked()), this, SLOT(changeNick()));
+
     disconnectConnectButton = new QPushButton(tr("Disconnetti"));
     connect(disconnectConnectButton, SIGNAL(clicked()), this, SLOT(disconnectConnect()));
+
     chatOptionsLayout = new QHBoxLayout;
     chatOptionsLayout->addWidget(nickLabel);
     chatOptionsLayout->addWidget(nickLineEdit);
@@ -44,6 +47,16 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     botanna->deleteLater();
+}
+
+void MainWindow::changeNick()
+{
+    QString newNick = nickLineEdit->text();
+
+    if (!newNick.isEmpty()) {
+        // change nick
+        botanna->getChat()->changeNick(newNick);
+    }
 }
 
 void MainWindow::disconnectConnect()

@@ -24,6 +24,7 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 private slots:
+    void changeNick();
     void disconnectConnect();
     void writeToChat();
 

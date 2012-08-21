@@ -13,12 +13,12 @@ TEMPLATE = app
 SOURCES += main.cpp \
         MainWindow.cpp \
     Botanna.cpp \
-    Chat.cpp \
-    Memory.cpp
+    Memory.cpp \
+    AJAXChat.cpp
 
 HEADERS  += MainWindow.h \
     Botanna.h \
-    Chat.h \
-    Memory.h
+    Memory.h \
+    AJAXChat.h
 
 DESTDIR = ../bin/
