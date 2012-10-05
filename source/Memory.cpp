@@ -41,6 +41,13 @@ QString Memory::chatLocation()
     return chatInfo("location");
 }
 
+/** @return the channel of the chat where I like to talk.
+    @return an empty string if there is no location. */
+QString Memory::chatChannel()
+{
+    return chatInfo("channel");
+}
+
 /** @return the username of the account on the chat where I like to talk.
     @return an empty string if there is no username. */
 QString Memory::chatUsername()

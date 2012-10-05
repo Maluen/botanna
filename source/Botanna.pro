@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network xml
+QT       += core gui network xml script
 
 TARGET = Botanna
 TEMPLATE = app
@@ -14,11 +14,13 @@ SOURCES += main.cpp \
         MainWindow.cpp \
     Botanna.cpp \
     Memory.cpp \
-    AJAXChat.cpp
+    AJAXChat.cpp \
+    Logic.cpp
 
 HEADERS  += MainWindow.h \
     Botanna.h \
     Memory.h \
-    AJAXChat.h
+    AJAXChat.h \
+    Logic.h
 
 DESTDIR = ../bin/

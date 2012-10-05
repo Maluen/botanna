@@ -28,8 +28,8 @@ public:
     bool isConnected();
     void join(const QString &roomName);
     void leave(const QString &roomName);
-    void write(const QString &msg, const QString &roomName="");
-    int maxWriteLength();
+    Q_INVOKABLE void write(const QString &msg, const QString &roomName="");
+    Q_INVOKABLE int maxWriteLength();
     void changeNick(const QString &newNick);
     QDomElement getUser(const int &userID);
     QDomElement getUser(const QString &userName);

@@ -1,5 +1,6 @@
 #include "Botanna.h"
 #include "Memory.h"
+#include "Logic.h"
 #include "AJAXChat.h"
 #include <QList>
 #include <QString>
@@ -22,6 +23,8 @@ Botanna::Botanna(QObject *parent) : QObject(parent)
         // stop
         // TODO
     }
+    // the channel can be empty
+    chatChannel = memory->chatChannel();
     chatUsername = memory->chatUsername();
     if (chatUsername.isEmpty()) {
         // stop
@@ -50,6 +53,17 @@ Botanna::Botanna(QObject *parent) : QObject(parent)
 
     gdfStarted = false;
     currentGdfUser = 0;
+
+    // Logic
+    logic = new Logic(this);
+    logic->processCommand("gdf", "start", QStringList(), "MightyBlue");
+    logic->processCommand("gdf", "join", QStringList(), "MightyBlue");
+    logic->processCommand("gdf", "join", QStringList(), "ddsx");
+    logic->processCommand("gdf", "ordine", QStringList(), "MightyBlue");
+    logic->processCommand("gdf", "msg", QStringList() << "oh" << "yeah" << "aa", "MightyBlue"); // valid message
+    logic->processCommand("gdf", "msg", QStringList() << "lo" << "lo" << "lo" << "lo", "ddsx"); // too long message
+    logic->processCommand("gdf", "riepilogo", QStringList(), "MightyBlue");
+    exit(1);
 }
 
 Botanna::~Botanna()
@@ -91,7 +105,7 @@ void Botanna::connectToChat()
 {
     if (chat != NULL && !chatLocation.isEmpty() && !chatUsername.isEmpty()) {
         // password can be empty
-        chat->connectToServer(chatLocation, chatUsername, chatPassword, tr("Pubblico"), forumLoginUrl);
+        chat->connectToServer(chatLocation, chatUsername, chatPassword, chatChannel, forumLoginUrl);
     }
 }
 
@@ -100,7 +114,7 @@ void Botanna::joinPublic(bool connected)
     if (!connected) {
         // error
     } else {
-        chat->join("Pubblico");
+        chat->join(chatChannel);
     }
 }
 
@@ -111,25 +125,29 @@ void Botanna::processPublicMessage(QString &message, const QString &userName)
         return;
     }
 
-    // replace the message with the alias, if exists
+    // replace the message with the alias in memory, if exists
     QString aliasMessage = memory->alias(message);
     if (!aliasMessage.isEmpty()) {
         message = aliasMessage;
     }
 
-    if (message.startsWith("!")) { // special message
+    if (message.startsWith("!")) { // the message is a command
         QStringList messageParts = message.split(" ");
         if (messageParts.length() < 2) {
             // too few parts
             return;
         }
-        const QString &commandType = messageParts.at(0);
+        const QString &commandType = messageParts.at(0).mid(1); // also removes the starting "!" character
         const QString &command = messageParts.at(1);
         QStringList parameters = messageParts.mid(2, -1); // from third element to end of list
 
-        if (commandType == "!gdf") {
+        // execute logic for command processing
+        logic->processCommand(commandType, command, parameters, userName);
+
+        /*
+        if (commandType == "gdf") {
             gdfExecuteCommand(command, parameters, userName);
-        }
+        }*/
     } else {
         // normal message
     }
@@ -332,7 +350,7 @@ void Botanna::gdfHelp(const QString &command)
         chat->write(tr("Mostra l'ordine degli utenti nel GDF. La (x) a sinistra indica che l'utente "
                        " è quello che deve scrivere il prossimo messaggio."));
     } else if (command == "help") {
-        chat->write(tr("Secondo te? Chiedere aiuto sull'aiuto mostra evidenti segnali di nubbiaggine..."));
+        chat->write(tr("Secondo te? Chiedere aiuto sull'aiuto mostra evidenti segnali di niubbiagine..."));
     }
 }
 
@@ -342,7 +360,7 @@ void Botanna::gdfAddWords(const QStringList &words, const QString &userName)
         return;
     }
 
-    if (words.length() > 2) {
+    if (words.length() > 3) {
         chat->write(tr("Troppe parole ") + userName + tr(". Puoi scriverne al massimo 2"));
         return;
     }

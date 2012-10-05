@@ -18,6 +18,7 @@ public:
     Memory(QObject *parent=0);
     QString name();
     QString chatLocation();
+    QString chatChannel();
     QString chatUsername();
     QString chatPassword();
     QString chatInfo(const QString &infoType);

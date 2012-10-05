@@ -8,6 +8,7 @@
 class AJAXChat;
 class QTimer;
 class Memory;
+class Logic;
 
 class Botanna : public QObject
 {
@@ -45,8 +46,10 @@ private slots:
 
 private:
     Memory *memory;
+    Logic *logic;
     QString name;
     QString chatLocation;
+    QString chatChannel;
     QString chatUsername;
     QString chatPassword;
     QString forumLoginUrl;
