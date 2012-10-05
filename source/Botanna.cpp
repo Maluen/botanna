@@ -55,7 +55,7 @@ Botanna::Botanna(QObject *parent) : QObject(parent)
     currentGdfUser = 0;
 
     // Logic
-    logic = new Logic(this);
+    /*logic = new Logic(this);
     logic->processCommand("gdf", "start", QStringList(), "MightyBlue");
     logic->processCommand("gdf", "join", QStringList(), "MightyBlue");
     logic->processCommand("gdf", "join", QStringList(), "ddsx");
@@ -63,7 +63,7 @@ Botanna::Botanna(QObject *parent) : QObject(parent)
     logic->processCommand("gdf", "msg", QStringList() << "oh" << "yeah" << "aa", "MightyBlue"); // valid message
     logic->processCommand("gdf", "msg", QStringList() << "lo" << "lo" << "lo" << "lo", "ddsx"); // too long message
     logic->processCommand("gdf", "riepilogo", QStringList(), "MightyBlue");
-    exit(1);
+    exit(1);*/
 }
 
 Botanna::~Botanna()
