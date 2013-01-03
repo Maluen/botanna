@@ -12,7 +12,7 @@
     }
     
     /** @param parameters array of strings with the command parameters */
-    this.processCommand = function(commandType, command, parameters, userName) {    
+    this.processCommand = function(commandType, command, parameters, userName) {  
         if (commandType != "gdf") { return; }
         
         if (command == "start") {
@@ -211,8 +211,9 @@
             return userName;
         }
 
-        if (words.length > 3) {
-            this.chat.write("Troppe parole " + userName + ". Puoi scriverne al massimo 2");
+        var maxWordsLength = 3;
+        if (words.length > maxWordsLength) {
+            this.chat.write("Troppe parole " + userName + ". Puoi scriverne al massimo " + maxWordsLength);
             return;
         }
 

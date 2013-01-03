@@ -55,8 +55,8 @@ Botanna::Botanna(QObject *parent) : QObject(parent)
     currentGdfUser = 0;
 
     // Logic
-    /*logic = new Logic(this);
-    logic->processCommand("gdf", "start", QStringList(), "MightyBlue");
+    logic = new Logic(this);
+    /*logic->processCommand("gdf", "start", QStringList(), "MightyBlue");
     logic->processCommand("gdf", "join", QStringList(), "MightyBlue");
     logic->processCommand("gdf", "join", QStringList(), "ddsx");
     logic->processCommand("gdf", "ordine", QStringList(), "MightyBlue");
