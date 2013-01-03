@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <memory>
     <!-- The bot name -->
-    <name>sPutanna</name>
+    <name>Botanna</name>
     <!-- The chat -->
     <chat>
         <location>http://www.sognilucidi.it/forum/chat/</location>
+        <channel>Pubblico</channel>
         <username>username</username>
         <password>password</password>
     </chat>
