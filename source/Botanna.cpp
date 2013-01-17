@@ -6,7 +6,7 @@
 #include <QString>
 #include <QRegExp>
 
-// TODO: modificare userID con il nome utente (nella realt‡ l'utente vede il nome e non l'id) e quindi tutte le varie
+// TODO: modificare userID con il nome utente (nella realt√† l'utente vede il nome e non l'id) e quindi tutte le varie
 // funzioni che lo usano, per il cambio nick bisogna collegarsi all'apposito segnale e fare il cambio nella lista utenti gdf.
 
 Botanna::Botanna(QObject *parent) : QObject(parent)
@@ -142,12 +142,11 @@ void Botanna::processPublicMessage(QString &message, const QString &userName)
         QStringList parameters = messageParts.mid(2, -1); // from third element to end of list
 
         // execute logic for command processing
-        logic->processCommand(commandType, command, parameters, userName);
+        //logic->processCommand(commandType, command, parameters, userName);
 
-        /*
         if (commandType == "gdf") {
             gdfExecuteCommand(command, parameters, userName);
-        }*/
+        }
     } else {
         // normal message
     }
@@ -168,6 +167,15 @@ void Botanna::gdfExecuteCommand(const QString &command, const QStringList &param
         // if a second argument is not specified, remove the author of the message
         QString userToRemove = parameters.isEmpty() ? userName : parameters.at(0);
         gdfUserLeave(userToRemove);
+    } else if (command == "rounds") {
+        if (parameters.isEmpty()) {
+            // informa sul numero di round del gdf corrente
+            gdfWriteRoundsNum();
+        } else {
+            // imposta il numero di round del gdf corrente
+            int roundsNum = parameters.at(0).toInt();
+            gdfSetRoundsNum(roundsNum);
+        }
     } else if (command == "undo") {
         // rimuove l'ultimo messaggio
         gdfUndo();
@@ -195,31 +203,33 @@ void Botanna::gdfStart()
         gdfUsers.clear();
         currentGdfUser = 0;
         currentGdfPhrase.clear();
+        gdfRoundsNum = 0;
+        gdfRoundsCompleted = 0;
     } else {
-        chat->write(tr("C'Ë gi‡ un gdf in corso."));
+        chat->write(tr("C'√® gi√† un gdf in corso."));
     }
 }
 
 void Botanna::gdfStop()
 {
     if (!gdfStarted) {
-        chat->write(tr("Il GDF non Ë attivo, non c'Ë niente da fermare."));
+        chat->write(tr("Il GDF non √® attivo, non c'√® niente da fermare."));
     } else {
         chat->write(tr("GDF fermato."));
         gdfStarted = false;
     }
 }
 
-/** Permette di continuare un GDF che Ë stato fermato incidentalmente. */
+/** Permette di continuare un GDF che √® stato fermato incidentalmente. */
 void Botanna::gdfRecover()
 {
     if (gdfStarted) {
         // the GDF is active, nothing to do
-        chat->write(tr("Il GDF Ë ancora attivo, dovresti recuperare la testa piuttosto -.-"));
+        chat->write(tr("Il GDF √® ancora attivo, dovresti recuperare la testa piuttosto -.-"));
         return;
     }
     if (currentGdfPhrase.isEmpty() && gdfUsers.isEmpty()) {
-        chat->write(tr("Il GDF Ë vuoto, non c'Ë niente da recuperare."));
+        chat->write(tr("Il GDF √® vuoto, non c'√® niente da recuperare."));
         return;
     }
 
@@ -231,16 +241,44 @@ void Botanna::gdfUserJoin(const QString &userName)
 {
     if (!gdfStarted) { return; }
 
-    // si assicura che l'utente non ci sia gi‡ e individua la posizione del nuovo utente
+    // si assicura che l'utente non ci sia gi√† e individua la posizione del nuovo utente
     for (int i=0; i<gdfUsers.length(); i++) {
         if (gdfUsers.at(i) == userName) {
-            chat->write(userName + tr(": fai gi‡ parte del GDF..."));
+            chat->write(userName + tr(": fai gi√† parte del GDF..."));
             return;
         }
     }
 
     gdfUsers.append(userName);
     chat->write(userName + tr(" sei dentro!"));
+}
+
+void Botanna::gdfWriteRoundsNum()
+{
+    if (!gdfStarted) { return; }
+
+    if (gdfRoundsNum == 0) {
+        chat->write(tr("Questo GDF non ha limiti sul numero di round!"));
+    } else {
+        chat->write(tr("Il numero di round di questo GDF √® pari a ") + QString::number(gdfRoundsNum)
+                    + tr(", di cui ") + QString::number(gdfRoundsCompleted) + tr(" gi√† completati/o."));
+    }
+}
+
+void Botanna::gdfSetRoundsNum(int roundsNum)
+{
+    if (!gdfStarted) { return; }
+
+    if (roundsNum <= gdfRoundsCompleted) {
+        chat->write(tr("Inserire un numero di round maggiore di ")
+                    + QString::number(gdfRoundsCompleted)
+                    + tr(" (i round gi√† completati)"));
+        return;
+    }
+
+    gdfRoundsNum = roundsNum;
+    chat->write(tr("Numero di round del GDF corrente impostati a ")
+                + QString::number(roundsNum));
 }
 
 void Botanna::gdfUserLeave(const QString &userToRemove)
@@ -256,7 +294,7 @@ void Botanna::gdfUserLeave(const QString &userToRemove)
             } else if (i < currentGdfUser) {
                 currentGdfUser--;
             }
-            chat->write(userToRemove + tr(" non fa pi˘ parte del GDF."));
+            chat->write(userToRemove + tr(" non fa pi√π parte del GDF."));
             return;
         }
     }
@@ -268,7 +306,7 @@ void Botanna::gdfUndo()
 {
     if (!gdfStarted) { return; }
     if (currentGdfPhrase.isEmpty()) {
-        chat->write(tr("Non c'Ë niente da rimuovere. Banned!"));
+        chat->write(tr("Non c'√® niente da rimuovere. Banned!"));
         return;
     }
 
@@ -280,7 +318,7 @@ void Botanna::gdfUndo()
 void Botanna::gdfRiepilogo()
 {
     if (currentGdfPhrase.isEmpty()) {
-        chat->write("Non c'Ë niente da riepilogare...");
+        chat->write("Non c'√® niente da riepilogare...");
         return;
     }
 
@@ -325,20 +363,23 @@ void Botanna::gdfHelp(const QString &command)
 {
     if (command.isEmpty()) {
         chat->write(tr("!gdf help seguito da uno dei seguenti comandi:"
-                       " start, stop, recover, join, leave, msg, undo, skip, riepilogo, ordine, help"));
+                       " start, stop, recover, join, rounds, leave, msg, undo, skip, riepilogo, ordine, help"));
     } else if (command == "start") {
         chat->write(tr("Avvia il GDF."));
     } else if (command == "stop") {
         chat->write(tr("Ferma il GDF. Richiede votazione."));
     } else if (command == "recover") {
-        chat->write(tr("Permette di recuperare un GDF che Ë stato fermato incidentalmente."));
+        chat->write(tr("Permette di recuperare un GDF che √® stato fermato incidentalmente."));
     } else if (command == "join") {
         chat->write(tr("Con join ti unisci al GDF in corso."));
+    } else if (command == "rounds") {
+        chat->write(tr("Informa sul numero di round del GDF corrente se chiamato senza argomenti, "
+                       "altrimenti imposta il numero di round."));
     } else if (command == "leave") {
         chat->write(tr("Con leave \"utente\" (senza apici) rimuovi l'utente dal GDF corrente, senza parametri"
                        " rimuove te."));
     } else if (command == "msg") {
-        chat->write(tr("Quando Ë il tuo turno puoi scrivere nel GDF con !gdf msg MESSAGGIO."
+        chat->write(tr("Quando √® il tuo turno puoi scrivere nel GDF con !gdf msg MESSAGGIO."
                        " Attenzione: puoi inserire al massimo due parole."));
     } else if (command == "undo") {
         chat->write(tr("Annulla l'ultimo messaggio inserito."));
@@ -348,7 +389,7 @@ void Botanna::gdfHelp(const QString &command)
         chat->write(tr("Mostra il contenuto, anche parziale, dell'ultimo GDF."));
     } else if (command == "ordine") {
         chat->write(tr("Mostra l'ordine degli utenti nel GDF. La (x) a sinistra indica che l'utente "
-                       " Ë quello che deve scrivere il prossimo messaggio."));
+                       " √® quello che deve scrivere il prossimo messaggio."));
     } else if (command == "help") {
         chat->write(tr("Secondo te? Chiedere aiuto sull'aiuto mostra evidenti segnali di niubbiagine..."));
     }
@@ -360,14 +401,44 @@ void Botanna::gdfAddWords(const QStringList &words, const QString &userName)
         return;
     }
 
+    // controlla se non sono gi√† stati completati tutti i round
+    if (gdfRoundsNum != 0 && gdfRoundsCompleted == gdfRoundsNum) {
+        chat->write(tr("Non puoi! Tutti i round sono gi√† stati completati."));
+        return;
+    }
+
     if (words.length() > 3) {
         chat->write(tr("Troppe parole ") + userName + tr(". Puoi scriverne al massimo 2"));
         return;
     }
 
     currentGdfPhrase.append(words.join(" ").toUpper());
+
+    // controlla se √® stato completato un round
+    if (gdfRoundsNum != 0 && gdfUsers.last() == userName) {
+        gdfRoundsCompleted++;
+        if (gdfRoundsCompleted == gdfRoundsNum) {
+            // tutti i round sono stati completati, questo √® l'ultimo messaggio del gdf!
+            chat->write(tr("Bene ") + "[b]" + gdfUsers.at(currentGdfUser) + "[/b], round finiti!");
+            gdfStop();
+            return;
+        }
+    }
+
     stepNextGdfUser();
     chat->write(tr("Bene, vai ") + "[b]" + gdfUsers.at(currentGdfUser) + "[/b]");
+
+    // all'inizio di un nuovo round, scrive un messaggio con il numero di round rimasti
+    if (gdfRoundsNum != 0 && gdfUsers.last() == userName) {
+        int roundsLeft = gdfRoundsNum-gdfRoundsCompleted;
+        if (roundsLeft > 1) {
+            chat->write(tr("Mancano ancora ")
+                        + QString::number(roundsLeft)
+                        +  tr(" round!"));
+        } else {
+            chat->write(tr("Ultimo round!!"));
+        }
+    }
 }
 
 /** Salta un turno e passa quindi al prossimo utente del GDF secondo l'ordine. */

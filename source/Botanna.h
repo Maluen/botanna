@@ -31,6 +31,8 @@ private:
     void gdfStop();
     void gdfRecover();
     void gdfUserJoin(const QString &userName);
+    void gdfWriteRoundsNum();
+    void gdfSetRoundsNum(int roundsNum);
     void gdfOrdine();
     void gdfAddWords(const QStringList &words, const QString &userName);
     void gdfUndo();
@@ -60,6 +62,8 @@ private:
     QList<QString> gdfUsers; // the usernames
     int currentGdfUser;
     QStringList currentGdfPhrase;
+    int gdfRoundsNum;
+    int gdfRoundsCompleted;
 };
 
 #endif // BOTANNA_H
